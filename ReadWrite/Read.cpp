@@ -1,7 +1,15 @@
 #include "Read.h"
 #include <iostream>
+//
+//Read::Read(Semaphore* readLock, Semaphore* readWriteLock, Boss* boss)
+//{
+//	this->readLock = readLock;
+//	this->readWriteLock = readWriteLock;
+//	myId = nextId;
+//	this->boss = boss;
+//}
 
-Read::Read(Semaphore* readLock, Semaphore* readWriteLock, Boss* boss)
+Read::Read(std::mutex* readLock, std::mutex* readWriteLock, Boss* boss)
 {
 	this->readLock = readLock;
 	this->readWriteLock = readWriteLock;
@@ -24,21 +32,21 @@ void Read::readBossHealth() {
 
 	while (true)
 	{
-		readLock->notify(myId);
+		readLock->lock();
 		readCount++;
 		if (readCount == 1)
 		{
-			readWriteLock->notify(myId);
-		}
-		readLock->wait(myId);// allow more readers
+			readWriteLock->lock();
+		}std::cout << "Read ID: " << myId << " here with " << readCount << " readers." << std::endl;
+		readLock->unlock();// allow more readers
 		std::cout << "Read ID: " << myId << ", read boss health: " << boss->getMyHealth() << "\n";
-		readLock->notify(myId);
+		readLock->lock();
 		readCount--;
 		if (readCount == 0)
 		{
-			readWriteLock->wait(myId);
+			readWriteLock->unlock();
 		}
-		readLock->wait(myId);
+		readLock->unlock();
 
 		if (boss->getMyHealth() == 0)
 		{

@@ -8,11 +8,11 @@
 #include "Boss.h"
 #include "Semaphore.h"
 //
-//std::mutex* readWriteLock = new std::mutex;
-//std::mutex* readerLock = new std::mutex;
+std::mutex* readWriteLock = new std::mutex;
+std::mutex* readerLock = new std::mutex;
 
-Semaphore* rwLock = new Semaphore();
-Semaphore* rLock = new Semaphore();
+//Semaphore* rwLock = new Semaphore(5);
+//Semaphore* rLock = new Semaphore(5);
 
 
 std::condition_variable cv;
@@ -28,8 +28,8 @@ int main() {
 
 	for (int i = 0; i < 5; i++)
 	{
-		Writer p(rwLock, boss);
-		Read read(rLock, rwLock, boss);
+		Writer p(readWriteLock, boss);
+		Read read(readerLock, readWriteLock, boss);
 
 		std::thread writerThread(&Writer::changeBossHealth, p);
 		std::thread readerThread(&Read::readBossHealth, read);
@@ -50,5 +50,15 @@ int main() {
 			break;
 		}
 	}
+	std::cout << "/********************************************************/ " << std::endl;
+	std::cout << "Number of Reads: " << boss->numberOfReads << std::endl;
+	std::cout << "Number of Reads: " << boss->numberOfReads << std::endl;
+	std::cout << "Number of Reads: " << boss->numberOfReads << std::endl;
+	std::cout << "Number of Reads: " << boss->numberOfReads << std::endl;
+	std::cout << "Number of Writes: " << boss->numberOfWrites << std::endl;
+	std::cout << "Number of Writes: " << boss->numberOfWrites << std::endl;
+	std::cout << "Number of Writes: " << boss->numberOfWrites << std::endl;
+	std::cout << "Number of Writes: " << boss->numberOfWrites << std::endl;
+	std::cout << "/********************************************************/ " << std::endl;
 	return 0;
 }
